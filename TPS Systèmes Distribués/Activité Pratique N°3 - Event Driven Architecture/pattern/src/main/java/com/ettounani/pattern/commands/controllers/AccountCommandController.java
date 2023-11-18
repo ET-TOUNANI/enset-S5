@@ -2,9 +2,14 @@ package com.ettounani.pattern.commands.controllers;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.axonframework.eventsourcing.eventstore.EventStore;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +24,8 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/commands/account")
 @AllArgsConstructor
 public class AccountCommandController {
-    @Autowired
     private CommandGateway commandGateway;
+    private EventStore eventStore;
 
     @PostMapping("/create")
     public CompletableFuture<String> createAccount(@RequestBody CreateAccountRequestDTO request) {
@@ -28,6 +33,16 @@ public class AccountCommandController {
                 new CreateAccountCommand(UUID.randomUUID().toString(), request.getInitialBalance(),
                         request.getCurrency()));
         return response;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> exceptionHandler(Exception ex) {
+        return ResponseEntity.internalServerError().body(ex.getMessage());
+    }
+
+    @GetMapping("/eventStore/{accountId}")
+    public Stream eventStore(@PathVariable String accountId) {
+        return eventStore.readEvents(accountId).asStream();
     }
 
 }
