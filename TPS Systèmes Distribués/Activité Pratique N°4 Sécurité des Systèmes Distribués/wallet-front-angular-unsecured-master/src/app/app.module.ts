@@ -17,15 +17,14 @@ import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 export function kcFactory(kcService: KeycloakService) {
   return () => kcService.init({
     config: {
-      url: 'http://localhost:8080/auth',
+      url: 'http://localhost:8080',
       realm: 'wallet-realm-tounani',
-      clientId: 'waller-client-tounani'
+      clientId: 'wallet-client-tounani'
     },
     initOptions: {
       onLoad: 'login-required',
-      checkLoginIframe: true
-    },
-    bearerExcludedUrls: []
+      checkLoginIframe: false
+    }
   });
 }
 
@@ -50,9 +49,10 @@ export function kcFactory(kcService: KeycloakService) {
   providers: [
     {
       provide: APP_INITIALIZER,
-      useFactory: kcFactory,
       deps: [KeycloakService],
-      multi: true
+      multi: true,
+      useFactory: kcFactory
+      
     }
   ],
   bootstrap: [AppComponent]

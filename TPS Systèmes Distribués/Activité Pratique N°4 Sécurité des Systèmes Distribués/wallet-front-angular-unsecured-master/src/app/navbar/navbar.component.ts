@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SecurityService } from '../services/security.service';
 
 @Component({
   selector: 'app-navbar',
@@ -7,19 +8,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NavbarComponent implements OnInit {
 
-  constructor() { }
+  constructor( public securityService:SecurityService) { }
 
   public async ngOnInit() {
 
   }
 
-  onLogout() {
-
+   onLogout() {
+    this.securityService.kcService.logout(window.location.origin);
   }
   public async getToken() {
   }
 
   async login(){
-    
+    await this.securityService.kcService.login({
+      redirectUri : window.location.origin
+    })
   }
 }
